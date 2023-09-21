@@ -1,0 +1,98 @@
+﻿@page "/cascade"
+
+@using Microsoft.JSInterop
+
+@inject IJSRuntime JSRuntime
+
+<h3>Cascade</h3>
+
+
+<EditForm Model="@cascade">
+    <select @onchange="HandleFirstDropDownChange">
+        <option value="">Select Media type ...</option>
+        @foreach (var m in MediaTypes)
+        {
+            <option value="@m.Key">@m.Value</option>
+        }
+    </select>
+
+    @if (SubTypes.Count > 0)
+    {
+        <select id="secondDropDown" @onchange="HandleSecondDropDownChange">
+            <option value="">Select Subtype ...</option>
+            @foreach (var s in SubTypes)
+            {
+                <option value="@s.Key">@s.Value</option>
+            }
+        </select>
+    }
+
+</EditForm>
+
+
+@code {
+    private CascadeModel cascade = new CascadeModel();
+
+    private Dictionary<int, string> MediaTypes = new Dictionary<int, string>();
+    private Dictionary<int, string> SubTypes = new Dictionary<int, string>();
+
+
+    public Cascade()
+    {
+        MediaTypes.Add(1, "Movies");
+        MediaTypes.Add(2, "Tv Shows");
+        MediaTypes.Add(3, "Books");
+
+    }
+
+    private async Task HandleFirstDropDownChange(ChangeEventArgs e)
+    {
+           
+            cascade.SecondId = 0;
+            SubTypes = new Dictionary<int, string>();
+
+
+        if (string.IsNullOrWhiteSpace(e.Value.ToString()))
+        {
+            cascade.FirstId = 0;
+            return;
+        }
+
+        cascade.FirstId = int.Parse(e.Value.ToString());
+
+        switch (cascade.FirstId)
+        {
+            case 1:
+                SubTypes = new Dictionary<int, string>();
+                SubTypes.Add(1, "Top gun");
+                SubTypes.Add(2, "Star Wars");
+                SubTypes.Add(3, "sharknado");
+                break;
+            case 2:
+                SubTypes = new Dictionary<int, string>();
+                SubTypes.Add(4, "Tv Shows1");
+                SubTypes.Add(5, "Tv Shows2");
+                SubTypes.Add(6, "Tv Shows3");
+                break;
+            case 3:
+                SubTypes = new Dictionary<int, string>();
+                SubTypes.Add(7, "Book1");
+                SubTypes.Add(8, "Book2");
+                SubTypes.Add(9, "Book3");
+                break;
+            default:
+                SubTypes = new Dictionary<int, string>();
+                break;
+        }
+        await JSRuntime.InvokeAsync<object>("ResetSecondDropDown", new { });
+    }
+
+    private void HandleSecondDropDownChange(ChangeEventArgs e)
+    {
+        if (string.IsNullOrWhiteSpace(e.Value.ToString()))
+        {
+            return;
+        }
+    }
+
+}
